@@ -50,6 +50,11 @@ class LaunchUtil(QWidget):
         self.scan_util_inst = scan_util.ScanUtil()
         self.scan_util_inst.show()
 
+     # defining a function that responds to a click
+    def retest_click_callback(self):
+        self.retest_inst = ot_app.RetestApp()
+        self.retest_inst.show()
+
     # defining a function that shows the easter egg
     def show_easter_egg(self, event):
         if self.easter_clicked >= 2:
@@ -87,12 +92,15 @@ class LaunchUtil(QWidget):
         btn_prijem.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_prijem.ico")))
         btn_snip = QPushButton("Odstraň středníky", self)
         btn_snip.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_snip.ico")))
-        
+        btn_retest = QPushButton("Retest vzorků", self)
+        btn_retest.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_snip.ico")))
+
         # define a horizontal box to hold buttons
         hbox_btns = QHBoxLayout()
         hbox_btns.addWidget(btn_scan)
         hbox_btns.addWidget(btn_prijem)
         hbox_btns.addWidget(btn_snip)
+        hbox_btns.addWidget(btn_retest)
 
         # define a vertical box to hold an image
         vbox_img = QVBoxLayout()
@@ -115,6 +123,8 @@ class LaunchUtil(QWidget):
         # btn_prijem.clicked.connect(self.prijem_click_callback)
         # #btn_snip.setStyleSheet("background-color: blue; color: white");
         # btn_snip.clicked.connect(self.snip_click_callback)
+        # btn_retest.setStyleSheet("background-color: blue; color: white");
+        btn_retest.clicked.connect(self.retest_click_callback)
 
         # final setup of window
         self.setLayout(vbox_img)
