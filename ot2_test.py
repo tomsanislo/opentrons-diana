@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 import sys, os, time
 import traceback
-from PyQt5.QtWidgets import QApplication, QComboBox, QFileDialog, QFormLayout, QGridLayout, QHBoxLayout, QLineEdit, QMainWindow, QProgressDialog, QPushButton, QSizePolicy, QSpinBox, QStatusBar, QStyleFactory, QTextBrowser, QVBoxLayout, QWidget, QMessageBox, QLabel
+from PyQt5.QtWidgets import QApplication, QComboBox, QFileDialog, QFormLayout, QGridLayout, QHBoxLayout, QLineEdit, QMainWindow, QProgressDialog, QPushButton, QSizePolicy, QSpinBox, QStatusBar, QStyleFactory, QTabWidget, QTextBrowser, QVBoxLayout, QWidget, QMessageBox, QLabel
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 from PyQt5.QtCore import QEvent, QObject, QRunnable, QThreadPool, Qt, pyqtSignal, pyqtSlot
 import shutil
 from datetime import datetime
 
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
 class WorkerSignals(QObject):
 
@@ -226,9 +225,8 @@ class RetestApp(QMainWindow):
     def initUI(self):
 
         # setup of window
-        self.setWindowTitle("Skenovací utilita")
+        self.setWindowTitle("Retestovací utilita")
         self.setWindowIcon(QIcon((os.path.join(self.cwd, "img", "ic_scan.ico"))))
-        self.setStyle(QStyleFactory.create("Windows"))
 
         # setup of a bold font
         bold_font = QFont()
@@ -238,11 +236,35 @@ class RetestApp(QMainWindow):
         lyt_main = QHBoxLayout()
         lyt_main.setContentsMargins(20, 20, 20, 20)
 
+         # Initialize tab screen
+        tab_widget = QTabWidget()
+        tab_connection = QWidget()
+        tab_main = QWidget()
+        tab_widget.resize(300,200)
+        
+        # Add tabs
+        tab_widget.addTab(tab_connection,"Připojení")
+        tab_widget.addTab(tab_main,"Protokoly")
+        
+        # Create first tab
+        
+        self.pushButton1 = QPushButton("PyQt5 button")
+
+        lyt_cn_main = QVBoxLayout(self)
+        lyt_cn_main.addWidget(self.pushButton1)
+
+
+        tab_connection.setLayout(lyt_cn_main)
+        
+        # Add tabs to widget
+        lyt_main.addWidget(tab_widget)
+        self.setLayout(lyt_main)
+
         # final setup of the window
         widget = QWidget()
         widget.setLayout(lyt_main)
         self.setCentralWidget(widget)
-        # self.setFixedSize(1200,600)
+        self.setFixedSize(600,600)
         self.show()
 
 if __name__ == '__main__':

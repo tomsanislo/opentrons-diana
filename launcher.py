@@ -3,10 +3,10 @@
 
 import sys, os
 import PyQt5
-from PyQt5.QtWidgets import QApplication, QWidget,QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QMessageBox
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QApplication, QFrame, QWidget,QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QMessageBox
+from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt
-import ot_app as ot_app
+import ot2_retest as ot_app
 
 class LaunchUtil(QWidget):
 
@@ -82,39 +82,66 @@ class LaunchUtil(QWidget):
     def initUI(self):
             
         # window setup
-        self.setWindowTitle("Launcher příjmových utilit - DIANA LAB")
+        self.setWindowTitle("Launcher Opentrons OT-2 - DIANA LAB")
         self.setWindowIcon(QIcon(os.path.join(self.cwd, "img", "ic_launcher.ico")))
 
+        # setup of a bold font
+        bold_font = QFont()
+        bold_font.setBold(True)
+
+        # setup of a big and bold font
+        big_bold_font = QFont('Times', 15)
+        big_bold_font.setBold(True)
+
+        # setup of a big font
+        big_font = QFont('Times', 11)
+
         # define buttons
-        btn_scan = QPushButton("Skenovací utilita", self)
-        btn_scan.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_scan.ico")))
-        btn_prijem = QPushButton("Příjem", self)
-        btn_prijem.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_prijem.ico")))
-        btn_snip = QPushButton("Odstraň středníky", self)
-        btn_snip.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_snip.ico")))
-        btn_retest = QPushButton("Retest vzorků", self)
-        btn_retest.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_snip.ico")))
+        btn_test = QPushButton("Primární testování", self)
+        # btn_scan.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_scan.ico")))
+        btn_test.setFont(big_font)
+        btn_retest = QPushButton("Retest", self)
+        # btn_prijem.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_prijem.ico")))
+        btn_retest.setFont(big_font)
+        btn_mm = QPushButton("PCR Master Mix", self)
+        # btn_snip.setIcon(QIcon(os.path.join(self.cwd, "img", "ic_snip.ico")))
+        btn_mm.setFont(big_font)
 
         # define a horizontal box to hold buttons
         hbox_btns = QHBoxLayout()
-        hbox_btns.addWidget(btn_scan)
-        hbox_btns.addWidget(btn_prijem)
-        hbox_btns.addWidget(btn_snip)
+        hbox_btns.addWidget(btn_test)
         hbox_btns.addWidget(btn_retest)
+        hbox_btns.addWidget(btn_mm)
 
         # define a vertical box to hold an image
         vbox_img = QVBoxLayout()
 
         # define a label to hold an image
         lbl_logo = QLabel(self)
-        im_logo = QPixmap(os.path.join(self.cwd, "img", "logo.png"))
+        im_logo = QPixmap(os.path.join(self.cwd, "img", "ot2.png"))
         lbl_logo.setPixmap(im_logo.scaled(300, 200, Qt.KeepAspectRatio))
         lbl_logo.setAlignment(PyQt5.QtCore.Qt.AlignCenter)
         lbl_logo.mousePressEvent = self.show_easter_egg
 
+        lbl_title = QLabel()
+        lbl_title.setText("Opentrons OT-2 ovládací utilita")
+        lbl_title.setFont(big_bold_font)
+        lbl_title.setAlignment(PyQt5.QtCore.Qt.AlignCenter)
+
+        hline_btns = QFrame(self)
+        hline_btns.setFrameShape(QFrame.HLine)
+        hline_btns.setFrameShadow(QFrame.Sunken)
+        hline_btns.setLineWidth(2)
+
         # add objects to b
         vbox_img.addWidget(lbl_logo)
+        vbox_img.addSpacing(30)
+        vbox_img.addWidget(lbl_title)
+        vbox_img.addSpacing(30)
+        vbox_img.addWidget(hline_btns)
+        vbox_img.addSpacing(30)
         vbox_img.addLayout(hbox_btns)
+        vbox_img.setContentsMargins(40, 20, 20, 20)
         
         # define on click events for buttons
         #btn_scan.setStyleSheet("background-color: red; color: white");
