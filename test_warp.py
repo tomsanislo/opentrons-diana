@@ -2,7 +2,7 @@ import cv2
 # import matplotlib.pyplot as plt
 import numpy as np
 
-im = cv2.imread("image.JPG")
+im = cv2.imread("image.jpg")
 src = np.float32([(120,  123), # ok, levy horni, x, y
                   (380, 150), # ok, pravy horni
                   (185, 485), # ok, levy dolni
@@ -18,4 +18,5 @@ M = cv2.getPerspectiveTransform(src, dst)
 warped = cv2.warpPerspective(im, M, (w, h), flags=cv2.INTER_LINEAR)
 flipped = cv2.flip(warped, 1)
 
-cv2.imwrite("image2.JPG", flipped[230:350, 0:480]  )
+# cv2.imwrite("image2.JPG", flipped[230:350, 0:480]  )
+cv2.imwrite("image2.JPG", flipped)

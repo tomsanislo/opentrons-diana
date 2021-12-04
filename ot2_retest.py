@@ -10,6 +10,7 @@ from datetime import datetime
 import shelve
 import paramiko
 from scp import SCPClient
+from helper_com import OT2Com
 
 from ot2_connection_data import OT2ConnectionData
 
@@ -108,6 +109,8 @@ class RetestApp(QMainWindow):
     sb_pcr = None
     btn_mm = None
     tube_codes = None
+    helper_com = None
+    protocol_id = None
 
 
 
@@ -132,6 +135,7 @@ class RetestApp(QMainWindow):
         # setup of a status bar
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
+
 
 
         self.open_session("data_connection.out")
@@ -195,6 +199,8 @@ class RetestApp(QMainWindow):
         self.hostname = self.shelf_connections[0].hostname
         self.username = self.shelf_connections[0].username
         self.key = self.shelf_connections[0].key
+
+        self.helper_com = OT2Com(self.hostname)
 
     def create_protocol(self):
         pass
@@ -336,9 +342,31 @@ class RetestApp(QMainWindow):
         except:
             self.status_bar.showMessage("Chyba v odesílání/spuštení protokolu")
 
+    def send_run_protocol(self, files):
+        
+        self.protocol_id, response = self.helper_com.send(files)
+
+        errors = ""
+
+        try:
+            errors = response.json()['data'].get('errors')
+            if errors:
+                raise RuntimeError(f"Errors in protocol: {errors}")
+
+            self.helper_com.run_protocol(self.protocol_id)
+
+        finally:
+            # Use the protocol_id to DELETE the protocol
+            self.helper_com.purge(self.protocol_id)
+
+
 
     def btn_send_callback(self):
-        self.scp_send_run("opentrons2.py")
+        self.send_run_protocol([("protocolFile", open("basic_transfer.py", 'rb')),
+                ("supportFiles", open("helpers.py", 'rb')),
+                ("supportFiles", open("basic_transfer_config.json", 'rb')),
+                ])
+        # self.scp_send_run("opentrons2.py")
 
     def btn_edit_callback(self):
         if self.btn_add.isHidden():
@@ -398,7 +426,7 @@ class RetestApp(QMainWindow):
     def initUI(self):
 
         # setup of window
-        self.setWindowTitle("Retestovací utilita")
+        self.setWindowTitle("DIANA Biotechnologies - Opentrons Controller")
         self.setWindowIcon(QIcon((os.path.join(self.cwd, "img", "ic_scan.ico"))))
 
         # setup of a bold font
@@ -475,6 +503,32 @@ class RetestApp(QMainWindow):
 
         tab_connection.setLayout(lyt_connection)
 
+        lbl_img = QLabel(self)
+        im_ot2 = QPixmap(os.path.join(self.cwd, "img", "img_opentrons.png"))
+        lbl_img.setPixmap(im_ot2.scaled(300, 200, Qt.KeepAspectRatio))
+        lbl_img.setAlignment(Qt.AlignCenter)
+        lbl_img.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        
+
+        lbl_status = QLabel()
+        lbl_status.setText("Status:")
+        lbl_status.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        lbl_status.setAlignment(Qt.AlignCenter)
+
+        self.lbl_status_cur = QLabel()
+        self.lbl_status_cur.setText("Disconnected")
+        self.lbl_status_cur.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.lbl_status_cur.setAlignment(Qt.AlignCenter)
+        self.lbl_status_cur.setFont(bold_font)
+        self.lbl_status_cur.setStyleSheet("background-color: red; color: white")
+        self.lbl_status_cur.setContentsMargins(7,5,7,5)
+
+        lyt_img = QHBoxLayout()
+        lyt_img.addWidget(lbl_img)
+        lyt_img.addWidget(lbl_status)
+        lyt_img.addWidget(self.lbl_status_cur)
+
         lbl_file = QLabel()
         lbl_file.setText("Načtený soubor:")
         lbl_file.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -532,6 +586,7 @@ class RetestApp(QMainWindow):
         self.btn_send.clicked.connect(self.btn_send_callback)
 
         lyt_protocol = QVBoxLayout()
+        lyt_protocol.addLayout(lyt_img)
         lyt_protocol.addLayout(lyt_file)
         lyt_protocol.addLayout(lyt_form)
         lyt_protocol.addWidget(self.btn_mm)
@@ -542,8 +597,9 @@ class RetestApp(QMainWindow):
 
         
         # Add tabs
-        tab_widget.addTab(tab_connection,"Připojení")
         tab_widget.addTab(tab_main,"Protokoly")
+        tab_widget.addTab(tab_connection,"Připojení")
+        
         
         
 
@@ -555,7 +611,8 @@ class RetestApp(QMainWindow):
         widget = QWidget()
         widget.setLayout(lyt_main)
         self.setCentralWidget(widget)
-        self.setFixedSize(600,600)
+        # self.setFixedSize(600,600)
+        self.showMaximized()
         self.show()
 
 if __name__ == '__main__':
